@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SearchBox } from "./search-box";
 
@@ -16,15 +17,12 @@ type IconName =
   | "clock"
   | "update"
   | "menu"
-  | "bookmark";
+  | "bookmark"
+  | "calculator"
+  | "team"
+  | "route";
 
-function Icon({
-  name,
-  size = 18,
-}: {
-  name: IconName;
-  size?: number;
-}) {
+function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
     home: <><path d="m3 10.8 9-7 9 7" /><path d="M5 9.5V21h14V9.5M9 21v-7h6v7" /></>,
     users: <><circle cx="9" cy="7" r="3.5" /><path d="M3 20c.4-4.3 2.4-6.5 6-6.5s5.6 2.2 6 6.5M16 4.8a3.4 3.4 0 0 1 0 6.5M17 14c2.5.6 3.8 2.5 4 5.3" /></>,
@@ -41,17 +39,13 @@ function Icon({
     update: <><path d="M20 11a8 8 0 1 0-2.3 6.2M20 5v6h-6" /></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
     bookmark: <path d="M6 3h12v18l-6-4-6 4Z" />,
+    calculator: <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2" /></>,
+    team: <><circle cx="12" cy="8" r="3" /><circle cx="5" cy="11" r="2" /><circle cx="19" cy="11" r="2" /><path d="M7 20c.4-4 2-6 5-6s4.6 2 5 6M1.5 19c.2-3 1.4-4.5 3.5-4.5M22.5 19c-.2-3-1.4-4.5-3.5-4.5" /></>,
+    route: <><circle cx="6" cy="18" r="2" /><circle cx="18" cy="6" r="2" /><path d="M8 18h3a3 3 0 0 0 3-3V9a3 3 0 0 1 3-3" /></>,
   };
 
   return (
-    <svg
-      aria-hidden="true"
-      className="icon"
-      fill="none"
-      height={size}
-      viewBox="0 0 24 24"
-      width={size}
-    >
+    <svg aria-hidden="true" className="icon" fill="none" height={size} viewBox="0 0 24 24" width={size}>
       {paths[name]}
     </svg>
   );
@@ -60,68 +54,69 @@ function Icon({
 const navigation: { label: string; icon: IconName; href: string }[] = [
   { label: "Overview", icon: "home", href: "#overview" },
   { label: "Characters", icon: "users", href: "#characters" },
-  { label: "Weapons", icon: "sword", href: "#collections" },
-  { label: "Artifacts", icon: "artifact", href: "#collections" },
-  { label: "Enemies", icon: "enemy", href: "#collections" },
-  { label: "Quests", icon: "quest", href: "#collections" },
-  { label: "Regions", icon: "map", href: "#collections" },
-];
-
-const collections: {
-  label: string;
-  count: string;
-  note: string;
-  icon: IconName;
-  tint: string;
-}[] = [
-  { label: "Characters", count: "102 entries", note: "Builds, talents & teams", icon: "users", tint: "jade" },
-  { label: "Weapons", count: "214 entries", note: "Stats, passives & materials", icon: "sword", tint: "gold" },
-  { label: "Artifacts", count: "56 sets", note: "Bonuses & recommendations", icon: "artifact", tint: "violet" },
-  { label: "Enemies", count: "339 entries", note: "Drops, routes & resistances", icon: "enemy", tint: "crimson" },
-  { label: "Quests", count: "1,244 entries", note: "Requirements & rewards", icon: "quest", tint: "blue" },
-  { label: "Regions", count: "8 regions", note: "Exploration & local resources", icon: "map", tint: "sand" },
-];
-
-const characters = [
-  { name: "Alhaitham", role: "Dendro · Sword", letter: "A", color: "emerald", status: "Updated" },
-  { name: "Nahida", role: "Dendro · Catalyst", letter: "N", color: "lime", status: "Popular" },
-  { name: "Furina", role: "Hydro · Sword", letter: "F", color: "azure", status: "Updated" },
-  { name: "Arlecchino", role: "Pyro · Polearm", letter: "A", color: "red", status: "Popular" },
-  { name: "Neuvillette", role: "Hydro · Catalyst", letter: "N", color: "indigo", status: "Guide" },
+  { label: "Weapons", icon: "sword", href: "#database" },
+  { label: "Artifacts", icon: "artifact", href: "#database" },
+  { label: "Enemies", icon: "enemy", href: "#database" },
+  { label: "Quests", icon: "quest", href: "#database" },
+  { label: "Regions", icon: "map", href: "#database" },
 ];
 
 const domains = [
   {
-    name: "Weapon Ascension",
-    places: "Cecilia Garden · Hidden Palace",
-    items: ["All weapon materials", "Sunday availability"],
+    category: "Weapon Materials",
+    title: "All weapon materials",
+    location: "Cecilia Garden · Hidden Palace · Echoes of the Deep Tides",
     icon: "sword" as IconName,
     color: "gold",
+    drops: ["D", "A", "B"],
   },
   {
-    name: "Talent Materials",
-    places: "Forsaken Rift · Taishan Mansion",
-    items: ["All talent books", "Sunday availability"],
+    category: "Talent Materials",
+    title: "All talent books",
+    location: "Forsaken Rift · Taishan Mansion · Steeple of Ignorance",
     icon: "book" as IconName,
-    color: "blue",
+    color: "cyan",
+    drops: ["F", "I", "O"],
   },
   {
-    name: "Artifact Domains",
-    places: "All regions",
-    items: ["No daily restriction", "View recommended sets"],
-    icon: "artifact" as IconName,
+    category: "Weekly Bosses",
+    title: "Trounce domains",
+    location: "Half-cost rewards available for the first 3 claims",
+    icon: "enemy" as IconName,
     color: "violet",
+    drops: ["W", "30", "3×"],
   },
+];
+
+const characters = [
+  { name: "Alhaitham", role: "On-field DPS", weapon: "Sword", element: "Dendro", image: "/characters/alhaitham.png", color: "dendro", usage: "12.8%" },
+  { name: "Nahida", role: "Off-field DPS", weapon: "Catalyst", element: "Dendro", image: "/characters/nahida.png", color: "dendro", usage: "68.4%" },
+  { name: "Furina", role: "Support", weapon: "Sword", element: "Hydro", image: "/characters/furina.png", color: "hydro", usage: "72.1%" },
+  { name: "Arlecchino", role: "On-field DPS", weapon: "Polearm", element: "Pyro", image: "/characters/arlecchino.png", color: "pyro", usage: "41.3%" },
+  { name: "Neuvillette", role: "On-field DPS", weapon: "Catalyst", element: "Hydro", image: "/characters/neuvillette.png", color: "hydro", usage: "53.7%" },
+];
+
+const database = [
+  { label: "Characters", count: "102", icon: "users" as IconName, color: "green" },
+  { label: "Weapons", count: "214", icon: "sword" as IconName, color: "amber" },
+  { label: "Artifacts", count: "56", icon: "artifact" as IconName, color: "purple" },
+  { label: "Enemies", count: "339", icon: "enemy" as IconName, color: "red" },
+  { label: "Quests", count: "1,244", icon: "quest" as IconName, color: "blue" },
+  { label: "Regions", count: "8", icon: "map" as IconName, color: "teal" },
+];
+
+const tools = [
+  { label: "Build Planner", note: "Compare equipment", icon: "sparkles" as IconName },
+  { label: "Material Calculator", note: "Track total costs", icon: "calculator" as IconName },
+  { label: "Team Builder", note: "Plan rotations", icon: "team" as IconName },
+  { label: "Farming Routes", note: "Find local items", icon: "route" as IconName },
 ];
 
 function Logo() {
   return (
     <Link className="brand" href="#overview" aria-label="E-Teyvat home">
-      <span className="brand-mark">
-        <span />
-      </span>
-      <span className="brand-name">E-Teyvat</span>
-      <span className="brand-edition">Archive</span>
+      <span className="brand-mark"><span /></span>
+      <span className="brand-copy"><strong>E-Teyvat</strong><small>Genshin Database</small></span>
     </Link>
   );
 }
@@ -130,28 +125,23 @@ function SidebarContent() {
   return (
     <>
       <nav aria-label="Main navigation" className="side-nav">
-        <p className="nav-label">Knowledge base</p>
+        <span className="nav-label">Database</span>
         {navigation.map((item, index) => (
-          <Link
-            className={`nav-item ${index === 0 ? "active" : ""}`}
-            href={item.href}
-            key={item.label}
-          >
+          <Link className={`nav-item ${index === 0 ? "active" : ""}`} href={item.href} key={item.label}>
             <Icon name={item.icon} />
             <span>{item.label}</span>
-            {index === 0 && <span className="active-marker" />}
+            {index === 0 && <span className="nav-key">G</span>}
           </Link>
         ))}
       </nav>
-      <div className="sidebar-rule" />
-      <nav aria-label="Tools" className="side-nav utility-nav">
-        <p className="nav-label">Tools</p>
-        <Link className="nav-item" href="#rotation"><Icon name="calendar" /><span>Daily Materials</span></Link>
-        <Link className="nav-item" href="#characters"><Icon name="bookmark" /><span>Saved Builds</span><span className="nav-count">4</span></Link>
+      <nav aria-label="Tools" className="side-nav side-tools">
+        <span className="nav-label">Your tools</span>
+        <Link className="nav-item" href="#rotation"><Icon name="calendar" /><span>Daily Rotation</span></Link>
+        <Link className="nav-item" href="#tools"><Icon name="bookmark" /><span>Saved Builds</span><span className="nav-badge">4</span></Link>
       </nav>
       <div className="sidebar-footer">
-        <div className="data-status"><span className="status-dot" />Data verified</div>
-        <p>Archive index · v5.8</p>
+        <span className="live-dot" />
+        <div><strong>Data up to date</strong><small>Version 5.8 · Phase II</small></div>
       </div>
     </>
   );
@@ -164,8 +154,8 @@ export default function Home() {
         <div className="topbar-brand"><Logo /></div>
         <div className="topbar-search"><SearchBox /></div>
         <div className="topbar-actions">
-          <Link className="text-action" href="#updates"><Icon name="update" />Updates</Link>
-          <button className="icon-button" aria-label="View saved pages"><Icon name="bookmark" /></button>
+          <Link className="top-link" href="#updates"><Icon name="update" />Updates</Link>
+          <button className="header-icon" aria-label="Saved builds"><Icon name="bookmark" /></button>
           <details className="mobile-menu">
             <summary aria-label="Open navigation"><Icon name="menu" /></summary>
             <div className="mobile-menu-panel"><SidebarContent /></div>
@@ -178,140 +168,136 @@ export default function Home() {
 
       <main className="main-content">
         <div className="content-wrap">
-          <section className="page-heading" aria-labelledby="page-title">
+          <section className="page-heading">
             <div>
-              <div className="eyebrow"><span>E-Teyvat</span><Icon name="chevron" size={12} /><span>Overview</span></div>
-              <h1 id="page-title">Teyvat Knowledge Base</h1>
-              <p>Builds, materials, and game data—organized for quick reference.</p>
+              <div className="breadcrumb"><span>Database</span><span>/</span><span>Overview</span></div>
+              <h1>Overview</h1>
+              <p>Everything you need before your next session.</p>
             </div>
-            <div className="last-updated"><Icon name="clock" size={15} />Updated July 26, 2026</div>
+            <div className="database-status">
+              <span className="status-label">Current data</span>
+              <strong>Version 5.8</strong>
+              <span className="phase-badge">Phase II</span>
+            </div>
           </section>
 
-          <section className="rotation-section" id="rotation" aria-labelledby="rotation-title">
-            <div className="section-heading">
+          <section className="quick-stats" aria-label="Database summary">
+            <div><span>Characters</span><strong>102</strong><small>7 elements</small></div>
+            <div><span>Weapons</span><strong>214</strong><small>5 types</small></div>
+            <div><span>Artifact sets</span><strong>56</strong><small>112 bonuses</small></div>
+            <div><span>Last data sync</span><strong className="sync-value"><span className="live-dot" />18 min</strong><small>Verified</small></div>
+          </section>
+
+          <section className="rotation-panel" id="rotation" aria-labelledby="rotation-title">
+            <div className="panel-header">
               <div>
-                <div className="section-kicker"><Icon name="calendar" size={15} />Daily reference</div>
-                <h2 id="rotation-title">Today’s Rotation</h2>
+                <span className="panel-icon"><Icon name="calendar" size={18} /></span>
+                <div><h2 id="rotation-title">Today&apos;s Rotation</h2><p>Sunday · All material domains are open</p></div>
               </div>
-              <div className="day-switcher" aria-label="Selected day">
-                <span>Sun</span>
-                <strong>July 26</strong>
-              </div>
+              <div className="reset-timer"><span>Server reset in</span><strong>07:42:18</strong></div>
             </div>
-            <div className="sunday-note">
-              <span className="sun-symbol">✦</span>
-              <div>
-                <strong>All material domains are available today</strong>
-                <p>Sunday lets you choose from every weapon and talent material reward.</p>
-              </div>
-              <Link href="#collections">View all domains <Icon name="chevron" size={14} /></Link>
+            <div className="rotation-tabs" role="tablist" aria-label="Rotation filters">
+              <button className="active" role="tab" aria-selected="true">All domains</button>
+              <button role="tab" aria-selected="false">Weapons</button>
+              <button role="tab" aria-selected="false">Talents</button>
+              <button role="tab" aria-selected="false">Bosses</button>
             </div>
             <div className="domain-grid">
               {domains.map((domain) => (
-                <article className="domain-card" key={domain.name}>
-                  <div className={`domain-icon ${domain.color}`}><Icon name={domain.icon} size={20} /></div>
-                  <div className="domain-card-content">
-                    <h3>{domain.name}</h3>
-                    <p>{domain.places}</p>
-                    <div className="domain-meta">
-                      {domain.items.map((item, index) => (
-                        <span key={item} className={index === 0 ? "primary-meta" : ""}>{item}</span>
-                      ))}
-                    </div>
+                <article className={`domain-card ${domain.color}`} key={domain.category}>
+                  <div className="domain-topline">
+                    <span className="domain-icon"><Icon name={domain.icon} size={19} /></span>
+                    <span>{domain.category}</span>
+                    <Link href="#rotation" aria-label={`View ${domain.category}`}><Icon name="chevron" size={15} /></Link>
                   </div>
-                  <Link href="#collections" aria-label={`View ${domain.name}`}><Icon name="chevron" size={16} /></Link>
+                  <h3>{domain.title}</h3>
+                  <p>{domain.location}</p>
+                  <div className="drop-row">
+                    {domain.drops.map((drop, index) => <span className={`drop-token token-${index + 1}`} key={drop}>{drop}</span>)}
+                    <small>Available today</small>
+                  </div>
                 </article>
               ))}
             </div>
           </section>
 
-          <div className="dashboard-grid">
-            <section className="collection-section" id="collections" aria-labelledby="collection-title">
-              <div className="section-title-row">
-                <div>
-                  <span className="section-kicker">Browse the archive</span>
-                  <h2 id="collection-title">Collections</h2>
+          <div className="dashboard-layout">
+            <div className="primary-column">
+              <section className="characters-section" id="characters" aria-labelledby="characters-title">
+                <div className="section-header">
+                  <div><h2 id="characters-title">Popular Characters</h2><p>Most viewed builds this week</p></div>
+                  <div className="element-filters" aria-label="Character filters">
+                    <button className="active">All</button><button>Dendro</button><button>Hydro</button><button>Pyro</button>
+                  </div>
+                  <Link href="#characters">View all <Icon name="chevron" size={14} /></Link>
                 </div>
-              </div>
-              <div className="collection-grid">
-                {collections.map((item) => (
-                  <Link className="collection-card" href={item.label === "Characters" ? "#characters" : "#collections"} key={item.label}>
-                    <span className={`collection-icon ${item.tint}`}><Icon name={item.icon} size={22} /></span>
-                    <span className="collection-copy">
-                      <strong>{item.label}</strong>
-                      <span>{item.note}</span>
-                    </span>
-                    <span className="collection-count">{item.count}</span>
-                    <Icon name="chevron" size={15} />
-                  </Link>
-                ))}
-              </div>
-            </section>
+                <div className="character-grid">
+                  {characters.map((character) => (
+                    <Link className={`character-card ${character.color}`} href="#characters" key={character.name}>
+                      <div className="character-image">
+                        <span className="element-orb" aria-label={character.element}>{character.element.charAt(0)}</span>
+                        <span className="usage-badge">{character.usage}</span>
+                        <Image alt={`${character.name} character portrait`} fill sizes="(max-width: 600px) 46vw, (max-width: 1100px) 25vw, 180px" src={character.image} />
+                        <div className="stars">★★★★★</div>
+                      </div>
+                      <div className="character-data">
+                        <h3>{character.name}</h3>
+                        <p>{character.element} · {character.weapon}</p>
+                        <span>{character.role}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
 
-            <aside className="updates-panel" id="updates" aria-labelledby="updates-title">
-              <div className="section-title-row">
-                <div>
-                  <span className="section-kicker">Recently changed</span>
-                  <h2 id="updates-title">Archive Updates</h2>
+              <section className="database-section" id="database" aria-labelledby="database-title">
+                <div className="section-header">
+                  <div><h2 id="database-title">Browse Database</h2><p>Jump directly to any collection</p></div>
                 </div>
-                <Link href="#updates">All updates</Link>
-              </div>
-              <div className="update-list">
-                <Link href="#characters" className="update-item">
-                  <span className="update-date"><strong>25</strong>JUL</span>
-                  <span><strong>Character guides</strong><small>Six build pages revised</small></span>
-                </Link>
-                <Link href="#collections" className="update-item">
-                  <span className="update-date"><strong>23</strong>JUL</span>
-                  <span><strong>New artifact set</strong><small>Bonuses and rankings added</small></span>
-                </Link>
-                <Link href="#rotation" className="update-item">
-                  <span className="update-date"><strong>21</strong>JUL</span>
-                  <span><strong>Domain schedules</strong><small>Rotation data verified</small></span>
-                </Link>
-              </div>
-              <div className="quick-reference">
-                <span className="qr-decoration" />
-                <Icon name="sparkles" size={20} />
-                <div><strong>Quick Reference</strong><p>Check ascension costs and material totals.</p></div>
-                <Link href="#characters">Open <Icon name="chevron" size={14} /></Link>
-              </div>
+                <div className="database-grid">
+                  {database.map((item) => (
+                    <Link className="database-card" href={item.label === "Characters" ? "#characters" : "#database"} key={item.label}>
+                      <span className={`database-icon ${item.color}`}><Icon name={item.icon} size={20} /></span>
+                      <span><strong>{item.label}</strong><small>{item.count} entries</small></span>
+                      <Icon name="chevron" size={15} />
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <aside className="right-rail">
+              <section className="tools-panel" id="tools">
+                <div className="rail-header"><div><h2>Quick Tools</h2><p>Plan your next upgrade</p></div></div>
+                <div className="tool-list">
+                  {tools.map((tool) => (
+                    <Link href="#tools" className="tool-card" key={tool.label}>
+                      <span><Icon name={tool.icon} size={18} /></span>
+                      <div><strong>{tool.label}</strong><small>{tool.note}</small></div>
+                      <Icon name="chevron" size={14} />
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              <section className="updates-panel" id="updates">
+                <div className="rail-header"><div><h2>Recently Updated</h2><p>Latest database changes</p></div><Link href="#updates">See all</Link></div>
+                <div className="update-list">
+                  <Link href="#characters"><span className="update-icon dendro">D</span><div><strong>Alhaitham build</strong><small>Team recommendations revised</small></div><time>2h</time></Link>
+                  <Link href="#database"><span className="update-icon artifact"><Icon name="artifact" size={16} /></span><div><strong>Night of the Sky&apos;s Unveiling</strong><small>Set rankings added</small></div><time>5h</time></Link>
+                  <Link href="#rotation"><span className="update-icon boss"><Icon name="enemy" size={16} /></span><div><strong>Weekly boss drops</strong><small>Material data verified</small></div><time>1d</time></Link>
+                </div>
+              </section>
             </aside>
           </div>
-
-          <section className="characters-section" id="characters" aria-labelledby="characters-title">
-            <div className="section-title-row">
-              <div>
-                <span className="section-kicker">Frequently viewed</span>
-                <h2 id="characters-title">Popular Characters</h2>
-              </div>
-              <Link href="#characters">View all characters <Icon name="chevron" size={14} /></Link>
-            </div>
-            <div className="character-grid">
-              {characters.map((character) => (
-                <Link className="character-card" href="#characters" key={character.name}>
-                  <div className={`character-portrait ${character.color}`}>
-                    <span className="portrait-glyph">✦</span>
-                    <span className="portrait-letter">{character.letter}</span>
-                    <span className="rarity">★★★★★</span>
-                  </div>
-                  <div className="character-info">
-                    <div><strong>{character.name}</strong><span>{character.status}</span></div>
-                    <p>{character.role}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
         </div>
       </main>
-      <footer className="mobile-bottom-nav" aria-label="Mobile navigation">
+
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         {navigation.slice(0, 4).map((item, index) => (
-          <Link className={index === 0 ? "active" : ""} href={item.href} key={item.label}>
-            <Icon name={item.icon} size={19} /><span>{item.label}</span>
-          </Link>
+          <Link className={index === 0 ? "active" : ""} href={item.href} key={item.label}><Icon name={item.icon} size={19} /><span>{item.label}</span></Link>
         ))}
-      </footer>
+      </nav>
     </div>
   );
 }
