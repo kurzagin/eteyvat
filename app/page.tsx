@@ -17,7 +17,6 @@ type IconName =
   | "clock"
   | "update"
   | "menu"
-  | "bookmark"
   | "calculator"
   | "team"
   | "route";
@@ -38,7 +37,6 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
     clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
     update: <><path d="M20 11a8 8 0 1 0-2.3 6.2M20 5v6h-6" /></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
-    bookmark: <path d="M6 3h12v18l-6-4-6 4Z" />,
     calculator: <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2" /></>,
     team: <><circle cx="12" cy="8" r="3" /><circle cx="5" cy="11" r="2" /><circle cx="19" cy="11" r="2" /><path d="M7 20c.4-4 2-6 5-6s4.6 2 5 6M1.5 19c.2-3 1.4-4.5 3.5-4.5M22.5 19c-.2-3-1.4-4.5-3.5-4.5" /></>,
     route: <><circle cx="6" cy="18" r="2" /><circle cx="18" cy="6" r="2" /><path d="M8 18h3a3 3 0 0 0 3-3V9a3 3 0 0 1 3-3" /></>,
@@ -135,9 +133,9 @@ function SidebarContent() {
         ))}
       </nav>
       <nav aria-label="Tools" className="side-nav side-tools">
-        <span className="nav-label">Your tools</span>
+        <span className="nav-label">Utilities</span>
         <Link className="nav-item" href="#rotation"><Icon name="calendar" /><span>Daily Rotation</span></Link>
-        <Link className="nav-item" href="#tools"><Icon name="bookmark" /><span>Saved Builds</span><span className="nav-badge">4</span></Link>
+        <Link className="nav-item" href="#tools"><Icon name="calculator" /><span>Calculators & Tools</span></Link>
       </nav>
       <div className="sidebar-footer">
         <span className="live-dot" />
@@ -155,12 +153,10 @@ export default function Home() {
         <div className="topbar-search"><SearchBox /></div>
         <div className="topbar-actions">
           <Link className="top-link" href="#updates"><Icon name="update" />Updates</Link>
-          <button className="header-icon" aria-label="Saved builds"><Icon name="bookmark" /></button>
           <details className="mobile-menu">
             <summary aria-label="Open navigation"><Icon name="menu" /></summary>
             <div className="mobile-menu-panel"><SidebarContent /></div>
           </details>
-          <button className="profile-button" aria-label="Open profile">ET</button>
         </div>
       </header>
 
