@@ -56,12 +56,6 @@ const characterPreview = [
   { name: "Arlecchino", element: "Pyro", role: "DPS", image: "/characters/arlecchino.png" },
 ];
 
-const weapons = [
-  { name: "Light of Foliar Incision", type: "Sword", image: "/weapons/foliar-incision.png" },
-  { name: "A Thousand Floating Dreams", type: "Catalyst", image: "/weapons/floating-dreams.png" },
-  { name: "Hunter's Path", type: "Bow", image: "/weapons/hunters-path.png" },
-];
-
 function BrandMark() {
   return <span className="brand-mark" aria-hidden="true"><span /></span>;
 }
@@ -118,37 +112,33 @@ export default function Home() {
           </section>
 
           <section className="banner-grid" id="banners" aria-label="Current banners">
-            <article className="event-banner character-banner">
-              <div className="banner-copy">
-                <span className="banner-label">Character Event Wish</span>
-                <h2>The Moongrass&apos; Enlightenment</h2>
-                <p>Featured 5-star character</p>
-                <strong>Nahida</strong>
-                <div className="banner-meta"><span>★★★★★</span><small>Ends in 11d 06h</small></div>
+            <Link className="banner-image-card" href="#characters">
+              <div className="banner-placeholder character-placeholder">
+                <span className="placeholder-icon"><Icon name="users" size={24} /></span>
+                <span className="placeholder-copy">
+                  <strong>Character banner image</strong>
+                  <small>Official artwork placeholder</small>
+                </span>
               </div>
-              <div className="banner-characters" aria-label="Featured characters">
-                <Image className="banner-character secondary left" src="/characters/alhaitham.png" alt="Alhaitham" width={256} height={256} />
-                <Image className="banner-character primary" src="/characters/nahida.png" alt="Nahida" width={256} height={256} priority />
-                <Image className="banner-character secondary right" src="/characters/furina.png" alt="Furina" width={256} height={256} />
+              <div className="banner-caption">
+                <div><span>Character Event Wish</span><strong>Current character banner</strong></div>
+                <Icon name="chevron" size={16} />
               </div>
-              <Link className="banner-link" href="#characters">View banner <Icon name="chevron" size={14} /></Link>
-            </article>
+            </Link>
 
-            <article className="event-banner weapon-banner">
-              <div className="banner-copy">
-                <span className="banner-label">Weapon Event Wish</span>
-                <h2>Epitome Invocation</h2>
-                <p>Featured 5-star equipment</p>
-                <strong>Signature Weapons</strong>
-                <div className="banner-meta"><span>★★★★★</span><small>Ends in 11d 06h</small></div>
+            <Link className="banner-image-card" href="#banners">
+              <div className="banner-placeholder weapon-placeholder">
+                <span className="placeholder-icon"><Icon name="sword" size={24} /></span>
+                <span className="placeholder-copy">
+                  <strong>Weapon banner image</strong>
+                  <small>Official artwork placeholder</small>
+                </span>
               </div>
-              <div className="banner-weapons">
-                {weapons.map((weapon, index) => (
-                  <Image className={`weapon-image weapon-${index + 1}`} src={weapon.image} alt={weapon.name} width={256} height={256} key={weapon.name} />
-                ))}
+              <div className="banner-caption">
+                <div><span>Weapon Event Wish</span><strong>Current weapon banner</strong></div>
+                <Icon name="chevron" size={16} />
               </div>
-              <Link className="banner-link" href="#banners">View weapons <Icon name="chevron" size={14} /></Link>
-            </article>
+            </Link>
           </section>
 
           <section className="character-database" id="characters" aria-labelledby="characters-title">
