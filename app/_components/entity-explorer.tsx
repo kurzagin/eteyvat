@@ -143,20 +143,15 @@ export function EntityExplorer({
           <article className="entity-card" key={`${entity.kind}:${entity.id}`}>
             <div className="entity-card-mark" aria-hidden="true">
               {entity.image ? (
-                <img src={entity.image} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "9px" }} />
+                <img src={entity.image} alt="" />
               ) : (
                 entity.name.slice(0, 2).toUpperCase()
               )}
             </div>
-            <div>
+            <div className="entity-card-info">
               <span>{kindLabels[entity.kind] ?? entity.kind}</span>
               <h2>{entity.name}</h2>
-              <p>{entity.description ?? "Structured record ready for graph retrieval."}</p>
             </div>
-            <footer>
-              <code>{entity.kind}:{entity.slug}</code>
-              {entity.gameVersion ? <small>Added {entity.gameVersion}</small> : null}
-            </footer>
           </article>
         ))}
       </div>
