@@ -142,7 +142,11 @@ export function EntityExplorer({
         {result?.items.map((entity) => (
           <article className="entity-card" key={`${entity.kind}:${entity.id}`}>
             <div className="entity-card-mark" aria-hidden="true">
-              {entity.name.slice(0, 2).toUpperCase()}
+              {entity.image ? (
+                <img src={entity.image} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "9px" }} />
+              ) : (
+                entity.name.slice(0, 2).toUpperCase()
+              )}
             </div>
             <div>
               <span>{kindLabels[entity.kind] ?? entity.kind}</span>

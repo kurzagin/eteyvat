@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Topbar, Sidebar, MobileBottomNav } from "./_components/navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,7 +37,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="site-shell" id="home">
+          <Topbar />
+          <Sidebar />
+          <main className="main-content">
+            <div className="content-wrap">
+              {children}
+            </div>
+          </main>
+          <MobileBottomNav />
+        </div>
+      </body>
     </html>
   );
 }
