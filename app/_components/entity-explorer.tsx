@@ -205,6 +205,40 @@ export function EntityExplorer({
 
           const ElementIcon = getElementIcon(entity.element);
 
+          if (entity.kind === "characters") {
+            return (
+              <article 
+                className="group relative flex flex-col rounded-xl overflow-hidden aspect-[3/4] bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2 col-span-1" 
+                key={`${entity.kind}:${entity.id}`}
+                style={{ 
+                  boxShadow: `0 4px 20px -2px rgba(0,0,0,0.5), 0 0 15px ${rarityGlow}`,
+                  borderBottom: `4px solid ${rarityColor}` 
+                }}
+              >
+                <div className="absolute inset-0 z-0 bg-[var(--surface)] transition-transform duration-500 ease-out group-hover:scale-110">
+                  <EntityImage entity={entity} />
+                </div>
+                
+                {/* Fade in shadow from bottom to top */}
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-black/40 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-300" />
+                
+                {/* Element Badge */}
+                {ElementIcon && (
+                  <div className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg group-hover:bg-black/60 transition-colors" title={entity.element!}>
+                    {ElementIcon}
+                  </div>
+                )}
+                
+                <div className="relative z-20 mt-auto p-4 flex flex-col justify-end h-full">
+                  <h2 className="text-white font-extrabold text-center text-base sm:text-lg leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide">
+                    {entity.name}
+                  </h2>
+                  <div className="w-8 h-0.5 bg-white/30 mx-auto mt-2 rounded-full group-hover:w-12 transition-all duration-300" style={{ backgroundColor: rarityColor }} />
+                </div>
+              </article>
+            );
+          }
+
           return (
             <article 
               className="group flex flex-col rounded-xl overflow-hidden bg-[var(--surface-sunken)] border border-white/5 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] cursor-pointer h-64 sm:h-72" 
