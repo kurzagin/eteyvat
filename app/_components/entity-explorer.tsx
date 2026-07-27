@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { Flame, Droplets, Wind, Zap, Snowflake, Leaf, Mountain, Star, HelpCircle } from "lucide-react";
 
 type EntityPreview = {
@@ -207,7 +208,8 @@ export function EntityExplorer({
 
           if (entity.kind === "characters") {
             return (
-              <article 
+              <Link
+                href={`/characters/${entity.slug}`}
                 className="group relative flex flex-col rounded-xl overflow-hidden aspect-square bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2 col-span-1" 
                 key={`${entity.kind}:${entity.id}`}
                 style={{ 
@@ -246,7 +248,7 @@ export function EntityExplorer({
                   </h2>
                   <div className="w-8 h-0.5 bg-white/30 mx-auto mt-2 rounded-full group-hover:w-12 transition-all duration-300" style={{ backgroundColor: rarityColor }} />
                 </div>
-              </article>
+              </Link>
             );
           }
 
