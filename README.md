@@ -1,6 +1,6 @@
 # E-Teyvat
 
-E-Teyvat is a structured Genshin Impact knowledge graph for pages, public read APIs, and AI retrieval. It uses a static Next.js frontend, a lightweight Cloudflare worker API, Neon Postgres, and Drizzle ORM.
+E-Teyvat is structured data made to be consumed by AI. It serves as a Genshin Impact knowledge graph for pages, public read APIs, and AI retrieval. It uses a static Next.js frontend, a lightweight Cloudflare worker API, Neon Postgres, and Drizzle ORM.
 
 ## Documentation
 
