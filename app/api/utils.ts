@@ -92,6 +92,23 @@ export function imageFromData(data: CanonicalData) {
       ? (data.images as CanonicalData)
       : null;
   if (!images) return null;
+  // Artifacts
+  if (typeof images["filename_flower"] === "string") {
+    return `https://enka.network/ui/${images["filename_flower"]}.png`;
+  }
+  if (typeof images["filename_circlet"] === "string") {
+    return `https://enka.network/ui/${images["filename_circlet"]}.png`;
+  }
+
+  // Monsters
+  if (
+    typeof images["filename_icon"] === "string" &&
+    (images["filename_icon"] as string).startsWith("UI_MonsterIcon")
+  ) {
+    return `https://res.cloudinary.com/genshin/image/upload/sprites/${images["filename_icon"]}.png`;
+  }
+
+  // Characters / Weapons / Items
   if (typeof images["filename_icon"] === "string") {
     return `https://enka.network/ui/${images["filename_icon"]}.png`;
   }
