@@ -95,6 +95,11 @@ export function imageFromData(data: CanonicalData) {
   for (const key of ["mihoyo_icon", "hoyowiki_icon", "nameicon", "namepic", "image", "icon"]) {
     if (typeof images[key] === "string" && (images[key] as string).startsWith("http")) return images[key] as string;
   }
+  
+  if (typeof images["filename_icon"] === "string") {
+    return `https://enka.network/ui/${images["filename_icon"]}.png`;
+  }
+  
   return null;
 }
 

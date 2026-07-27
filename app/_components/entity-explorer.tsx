@@ -28,6 +28,22 @@ const kindLabels: Record<string, string> = {
   geographies: "Region",
 };
 
+function EntityImage({ entity }: { entity: EntityPreview }) {
+  const [error, setError] = useState(false);
+  
+  if (!entity.image || error) {
+    return <div className="entity-placeholder">{entity.name.slice(0, 2).toUpperCase()}</div>;
+  }
+  
+  return (
+    <img 
+      src={entity.image} 
+      alt="" 
+      onError={() => setError(true)}
+    />
+  );
+}
+
 export function EntityExplorer({
   kind,
   compact = false,
@@ -142,11 +158,7 @@ export function EntityExplorer({
         {result?.items.map((entity) => (
           <article className="entity-card" key={`${entity.kind}:${entity.id}`}>
             <div className="entity-card-mark" aria-hidden="true">
-              {entity.image ? (
-                <img src={entity.image} alt="" />
-              ) : (
-                entity.name.slice(0, 2).toUpperCase()
-              )}
+              <EntityImage entity={entity} />
             </div>
             <div className="entity-card-info">
               <span>{kindLabels[entity.kind] ?? entity.kind}</span>
