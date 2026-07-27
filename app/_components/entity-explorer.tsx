@@ -49,7 +49,7 @@ function EntityImage({ entity }: { entity: EntityPreview }) {
       src={entity.image} 
       alt={entity.name} 
       onError={() => setError(true)}
-      className={`w-full h-full p-2 transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] ${entity.kind === "characters" ? "object-cover object-top p-0" : "object-contain"}`}
+      className={`w-full h-full p-2 transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] ${entity.kind === "characters" ? "object-contain object-bottom p-0" : "object-contain"}`}
     />
   );
 }
