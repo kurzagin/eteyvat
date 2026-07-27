@@ -1,135 +1,164 @@
+import { resolveImageUrl } from "@/app/api/utils";
+import { CharacterPortrait, SignalGlyph } from "@/app/database/banners/banner-visuals";
 import { getDatabase } from "@/db/client";
-import { bannerCharacterStatistics, entities, bannerPhaseCharacters, bannerPhases } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { bannerCharacterStatistics, bannerPhaseCharacters, bannerPhases, entities } from "@/db/schema";
+import { asc, eq } from "drizzle-orm";
+import { Activity, ArrowLeft, CalendarDays, Clock3, Info, Orbit, RadioTower } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export default async function CharacterBannerHistoryPage({
-  params
+  params,
 }: {
-  params: Promise<{ character: string }>
+  params: Promise<{ character: string }>;
 }) {
   const db = getDatabase();
   const { character: characterSlug } = await params;
-  
-  const charEntity = await db.query.entities.findFirst({
+  const character = await db.query.entities.findFirst({
     where: eq(entities.slug, characterSlug),
   });
 
-  if (!charEntity) {
-    notFound();
-  }
+  if (!character) notFound();
 
-  const appearances = await db
-    .select({
+  const [appearances, stats] = await Promise.all([
+    db.select({
       phaseKey: bannerPhases.phaseKey,
       version: bannerPhases.version,
       phaseNumber: bannerPhases.phaseNumber,
       sequenceIndex: bannerPhases.sequenceIndex,
       startDate: bannerPhases.startDate,
       endDate: bannerPhases.endDate,
+      status: bannerPhases.status,
+      rarity: bannerPhaseCharacters.rarity,
     })
-    .from(bannerPhaseCharacters)
-    .innerJoin(bannerPhases, eq(bannerPhaseCharacters.phaseId, bannerPhases.id))
-    .where(eq(bannerPhaseCharacters.characterId, charEntity.id))
-    .orderBy(asc(bannerPhases.sequenceIndex));
+      .from(bannerPhaseCharacters)
+      .innerJoin(bannerPhases, eq(bannerPhaseCharacters.phaseId, bannerPhases.id))
+      .where(eq(bannerPhaseCharacters.characterId, character.id))
+      .orderBy(asc(bannerPhases.sequenceIndex)),
+    db.query.bannerCharacterStatistics.findFirst({
+      where: eq(bannerCharacterStatistics.characterId, character.id),
+    }),
+  ]);
 
-  const stats = await db.query.bannerCharacterStatistics.findFirst({
-    where: eq(bannerCharacterStatistics.characterId, charEntity.id),
-  });
+  const imageUrl = resolveImageUrl(character.customImageUrl, character.canonicalData);
+  const latestAppearance = appearances.at(-1);
+  const pressureScore = stats?.pressureScore ?? 0;
+  const intervals = stats?.intervals ?? [];
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="flex items-center space-x-4">
-        <Link href="/database/banners/rerun-pressure" className="text-blue-400 hover:underline">
-          &larr; Back to Rerun Pressure
+    <div className="character-history-page">
+      <section className="character-history-hero">
+        <Link className="banner-back-link" href="/database/banners/rerun-pressure">
+          <ArrowLeft size={13} /> Pressure index
         </Link>
-      </div>
-
-      <header className="space-y-4">
-        <h1 className="text-4xl font-bold text-white">{charEntity.name} Banner History</h1>
-        <p className="text-gray-400">
-          Chronological banner appearances, wait intervals, and statistical analysis.
-        </p>
-        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4 text-orange-200 text-sm">
-          <strong>Disclaimer:</strong> This is a statistical estimate based on historical banner rotations. It is not official information or a leak.
-        </div>
-      </header>
-
-      {stats && (
-        <section className="bg-[var(--surface-sunken)] border border-white/10 rounded-lg p-6 space-y-4">
-          <h2 className="text-2xl font-semibold text-white mb-4">Summary</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div>
-              <div className="text-gray-500 text-sm uppercase">Historical Intervals</div>
-              <div className="text-xl font-mono text-white mt-1">
-                {stats.intervals && stats.intervals.length > 0 ? stats.intervals.slice(-5).join(", ") + (stats.intervals.length > 5 ? "..." : "") : "-"}
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-500 text-sm uppercase">Current Wait</div>
-              <div className="text-xl font-mono text-white mt-1">{stats.currentWait} phases</div>
-            </div>
-            <div>
-              <div className="text-gray-500 text-sm uppercase">Typical Wait</div>
-              <div className="text-xl font-mono text-white mt-1">
-                {stats.medianInterval ?? "-"} <span className="text-gray-500 text-sm">median</span>
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-500 text-sm uppercase">Pressure</div>
-              <div className="text-xl font-mono text-white mt-1 capitalize">
-                {stats.pressureLevel?.replace('_', ' ') ?? "-"}
-              </div>
-              <div className="text-gray-500 text-xs mt-1 capitalize">{stats.confidenceLevel} confidence</div>
-            </div>
+        <div className="history-hero-copy">
+          <span className="banner-kicker"><Orbit size={13} /> Character signal / historical record</span>
+          <div className="history-rarity">{"✦".repeat(appearances[0]?.rarity ?? 4)}</div>
+          <h1>{character.name}<em>banner history</em></h1>
+          <p>Every recorded appearance, completed interval, and current rerun-pressure signal in one telemetry view.</p>
+          <div className="history-last-seen">
+            <CalendarDays size={14} />
+            <span>Last recorded transmission</span>
+            <strong>{latestAppearance ? `Version ${latestAppearance.version} · Phase ${latestAppearance.phaseNumber}` : "No appearance recorded"}</strong>
           </div>
-          
-          {stats.reasons && stats.reasons.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <h3 className="text-lg font-medium text-white mb-2">Analysis Reasons</h3>
-              <ul className="list-disc list-inside space-y-1 text-gray-400">
-                {(stats.reasons as any[]).map((r, i) => (
-                  <li key={i}>{r.message}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </section>
-      )}
+        </div>
+        <div className="history-portrait">
+          <span className="history-orbit" aria-hidden="true" />
+          <CharacterPortrait
+            slug={character.slug}
+            name={character.name}
+            imageUrl={imageUrl}
+            sizes="(max-width: 700px) 72vw, 390px"
+          />
+        </div>
+        <div className="history-hero-signal">
+          <span><i /> Archive synchronized</span>
+          <strong>{appearances.length} APPEARANCES</strong>
+        </div>
+      </section>
 
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold text-white">Appearance Timeline</h2>
-        <div className="overflow-x-auto rounded-lg border border-white/10 bg-[var(--surface-sunken)]">
-          <table className="w-full text-left text-sm text-gray-300">
-            <thead className="bg-black/40 text-gray-400 uppercase">
-              <tr>
-                <th className="px-4 py-3">Sequence</th>
-                <th className="px-4 py-3">Version</th>
-                <th className="px-4 py-3">Phase Key</th>
-                <th className="px-4 py-3">Dates</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {appearances.map((app) => (
-                <tr key={app.phaseKey} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 font-mono text-white">{app.sequenceIndex}</td>
-                  <td className="px-4 py-3">{app.version} Phase {app.phaseNumber}</td>
-                  <td className="px-4 py-3 text-gray-500">{app.phaseKey}</td>
-                  <td className="px-4 py-3">
-                    {app.startDate?.toLocaleDateString()} - {app.endDate?.toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-              {appearances.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                    No banner appearances found for this character.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <section className="history-metrics" aria-label="Banner statistics">
+        <article>
+          <Clock3 size={17} />
+          <span><small>Current wait</small><strong>{stats?.currentWait ?? "—"} <i>phases</i></strong></span>
+        </article>
+        <article>
+          <Activity size={17} />
+          <span><small>Median interval</small><strong>{stats?.medianInterval ?? "—"} <i>phases</i></strong></span>
+        </article>
+        <article>
+          <RadioTower size={17} />
+          <span><small>Pressure signal</small><strong className="capitalize">{stats?.pressureLevel?.replaceAll("_", " ") ?? "Unavailable"}</strong></span>
+        </article>
+        <article className="history-score-card">
+          <SignalGlyph value={pressureScore} />
+          <span><small>Model score</small><strong>{stats?.pressureScore ?? "—"}<i>/100</i></strong></span>
+        </article>
+      </section>
+
+      <aside className="model-notice history-notice">
+        <Info size={16} />
+        <p><strong>Historical signal, not schedule.</strong> This analysis is neither official information nor a leak. Rotation patterns can be broken intentionally.</p>
+        <span>{stats?.confidenceScore ?? "—"}% confidence · {stats?.confidenceLevel ?? "unknown"}</span>
+      </aside>
+
+      <section className="history-data-grid">
+        <article className="history-interval-panel">
+          <header className="banner-section-heading">
+            <div><span>01 / Rhythm</span><h2>Interval telemetry</h2></div>
+            <p>{intervals.length} completed intervals</p>
+          </header>
+          <div className="interval-visual">
+            {intervals.length ? intervals.map((interval, index) => (
+              <div className="interval-bar" key={`${interval}-${index}`}>
+                <span style={{ height: `${Math.max(16, Math.min(100, interval * 10))}%` }} />
+                <strong>{interval}</strong>
+                <small>P{index + 1}</small>
+              </div>
+            )) : <p>No completed intervals are available yet.</p>}
+          </div>
+          <div className="interval-range">
+            <span><small>Minimum</small><strong>{stats?.minimumInterval ?? "—"}</strong></span>
+            <span><small>Mean</small><strong>{stats?.meanInterval?.toFixed(1) ?? "—"}</strong></span>
+            <span><small>Maximum</small><strong>{stats?.maximumInterval ?? "—"}</strong></span>
+          </div>
+        </article>
+
+        <article className="history-reasons-panel">
+          <header className="banner-section-heading">
+            <div><span>02 / Model trace</span><h2>Why this score</h2></div>
+          </header>
+          <div className="history-reasons">
+            {stats?.reasons?.length ? stats.reasons.map((reason, index) => (
+              <div key={`${reason.reasonCode}-${index}`}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{reason.message}</p>
+                <strong>{reason.weight ? `${Math.round(reason.weight * 100)}%` : "context"}</strong>
+              </div>
+            )) : <p className="history-empty">No model reasons are available for this character.</p>}
+          </div>
+        </article>
+      </section>
+
+      <section className="history-timeline-section">
+        <header className="banner-section-heading">
+          <div><span>03 / Archive</span><h2>Appearance timeline</h2></div>
+          <p>Oldest → newest</p>
+        </header>
+        <div className="character-appearance-rail">
+          {appearances.map((appearance, index) => (
+            <article key={appearance.phaseKey}>
+              <span className="appearance-node">{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <small>SEQ / {String(appearance.sequenceIndex).padStart(3, "0")}</small>
+                <h3>Version {appearance.version}</h3>
+                <strong>Phase {appearance.phaseNumber}</strong>
+                <p>{appearance.startDate?.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) ?? "Unknown"}<i>→</i>{appearance.endDate?.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) ?? "Open"}</p>
+                <code>{appearance.phaseKey}</code>
+              </div>
+            </article>
+          ))}
+          {!appearances.length && <div className="history-empty">No banner appearances found for this character.</div>}
         </div>
       </section>
     </div>
