@@ -13,8 +13,8 @@
     "sync:genshin": "node --experimental-strip-types scripts/sync-genshin.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1095.0",
     "@neondatabase/serverless": "^1.1.0",
-    "@vercel/blob": "^2.6.1",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.12",
     "react": "19.2.4",
