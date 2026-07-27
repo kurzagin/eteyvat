@@ -100,6 +100,11 @@ export function imageFromData(data: CanonicalData) {
     return `https://enka.network/ui/${images["filename_circlet"]}.png`;
   }
 
+  // Geographies (Regions)
+  if (typeof images["filename_image"] === "string") {
+    return `https://res.cloudinary.com/genshin/image/upload/sprites/${images["filename_image"]}.png`;
+  }
+
   // Monsters
   if (
     typeof images["filename_icon"] === "string" &&
