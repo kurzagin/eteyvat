@@ -7,12 +7,13 @@ import Link from "next/link";
 export default async function CharacterBannerHistoryPage({
   params
 }: {
-  params: { character: string }
+  params: Promise<{ character: string }>
 }) {
   const db = getDatabase();
+  const { character: characterSlug } = await params;
   
   const charEntity = await db.query.entities.findFirst({
-    where: eq(entities.slug, params.character),
+    where: eq(entities.slug, characterSlug),
   });
 
   if (!charEntity) {

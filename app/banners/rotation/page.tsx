@@ -22,33 +22,25 @@ export default async function BannerRotationPage() {
   
   let charactersByPhase = new Map<number, any[]>();
   if (phaseIds.length > 0) {
-    const chars = await db
-      .select({
-        phaseId: bannerPhaseCharacters.phaseId,
-        slug: entities.slug,
-        name: entities.name,
-        rarity: bannerPhaseCharacters.rarity,
-        element: entities.element,
-        weapon: entities.weapon,
-      })
-      .from(bannerPhaseCharacters)
-      .innerJoin(entities, eq(bannerPhaseCharacters.characterId, entities.id))
-      .where(eq(bannerPhaseCharacters.featured, true)); // Wait, dizzle inArray might be better, but selecting all and filtering is fine for 20 phases. Or I can just fetch all and filter in JS if not too big, or use a manual query.
-      // Wait, there's a bug: the above query fetches ALL characters because I didn't filter by phaseIds. Let me fix the query.
 
-      const allChars = await db.query.bannerPhaseCharacters.findMany({
-        with: {
-          character: true,
-        },
-      });
+
+      const allChars = await db
+        .select({
+          phaseId: bannerPhaseCharacters.phaseId,
+          slug: entities.slug,
+          name: entities.name,
+          rarity: bannerPhaseCharacters.rarity,
+        })
+        .from(bannerPhaseCharacters)
+        .innerJoin(entities, eq(bannerPhaseCharacters.characterId, entities.id));
 
       for (const row of allChars) {
         if (!charactersByPhase.has(row.phaseId)) {
           charactersByPhase.set(row.phaseId, []);
         }
         charactersByPhase.get(row.phaseId)!.push({
-          slug: row.character.slug,
-          name: row.character.name,
+          slug: row.slug,
+          name: row.name,
           rarity: row.rarity,
         });
       }

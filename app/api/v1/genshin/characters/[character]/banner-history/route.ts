@@ -11,10 +11,10 @@ import {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { character: string } }
+  { params }: { params: Promise<{ character: string }> }
 ) {
   const db = getDatabase();
-  const slug = params.character;
+  const { character: slug } = await params;
 
   const charEntity = await db.query.entities.findFirst({
     where: eq(entities.slug, slug),
