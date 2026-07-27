@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin") && request.nextUrl.pathname !== "/admin/login") {
+  const path = request.nextUrl.pathname;
+  const isLoginRoute = path === "/admin/login" || path === "/admin/login/";
+
+  if (path.startsWith("/admin") && !isLoginRoute) {
     const session = request.cookies.get("eteyvat_admin_session")?.value;
     
     if (!session || session !== "authenticated") {
@@ -10,7 +13,7 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  if (request.nextUrl.pathname === "/admin/login") {
+  if (isLoginRoute) {
     const session = request.cookies.get("eteyvat_admin_session")?.value;
     if (session === "authenticated") {
       return NextResponse.redirect(new URL("/admin", request.url));
