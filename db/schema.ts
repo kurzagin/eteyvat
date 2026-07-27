@@ -12,6 +12,7 @@ import {
   uuid,
   vector,
   varchar,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 export type SyncStatus = "running" | "failed" | "ready";
@@ -171,3 +172,67 @@ export type Entity = typeof entities.$inferSelect;
 export type NewEntity = typeof entities.$inferInsert;
 export type Relation = typeof relations.$inferSelect;
 
+export const bannerSources = pgTable("banner_sources", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  repositoryUrl: text("repository_url").notNull(),
+  filePath: text("file_path").notNull(),
+  commitSha: text("commit_sha").notNull(),
+  importedAt: timestamp("imported_at", { withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const bannerPhases = pgTable("banner_phases", {
+  id: serial("id").primaryKey(),
+  game: text("game").notNull().default("genshin"),
+  version: text("version").notNull(),
+  phaseNumber: integer("phase_number").notNull(),
+  phaseKey: text("phase_key").notNull().unique(),
+  sequenceIndex: integer("sequence_index").notNull().unique(),
+  startDate: timestamp("start_date", { withTimezone: true }),
+  endDate: timestamp("end_date", { withTimezone: true }),
+  status: text("status").notNull().default("completed"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const bannerPhaseCharacters = pgTable(
+  "banner_phase_characters",
+  {
+    id: serial("id").primaryKey(),
+    phaseId: integer("phase_id").notNull().references(() => bannerPhases.id, { onDelete: "cascade" }),
+    characterId: integer("character_id").references(() => entities.id, { onDelete: "set null" }),
+    characterName: text("character_name").notNull(),
+    rarity: integer("rarity").notNull(),
+    featured: boolean("featured").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("banner_phase_chars_phase_char_uidx").on(table.phaseId, table.characterId),
+    uniqueIndex("banner_phase_chars_phase_name_uidx").on(table.phaseId, table.characterName),
+  ]
+);
+
+export const bannerCharacterStatistics = pgTable("banner_character_statistics", {
+  characterId: integer("character_id").primaryKey().references(() => entities.id, { onDelete: "cascade" }),
+  appearanceCount: integer("appearance_count").notNull().default(0),
+  completedIntervalCount: integer("completed_interval_count").notNull().default(0),
+  currentWait: integer("current_wait").notNull().default(0),
+  meanInterval: doublePrecision("mean_interval"),
+  medianInterval: doublePrecision("median_interval"),
+  minimumInterval: integer("minimum_interval"),
+  maximumInterval: integer("maximum_interval"),
+  modeIntervals: jsonb("mode_intervals").$type<number[]>(),
+  intervals: jsonb("intervals").$type<number[]>(),
+  appearancePhaseIndices: jsonb("appearance_phase_indices").$type<number[]>(),
+  currentWaitPercentile: doublePrecision("current_wait_percentile"),
+  pressureScore: integer("pressure_score"),
+  pressureLevel: text("pressure_level"),
+  confidenceScore: integer("confidence_score"),
+  confidenceLevel: text("confidence_level"),
+  reasons: jsonb("reasons").$type<Array<{ reasonCode: string; message: string; weight: number }>>(),
+  calculatedAt: timestamp("calculated_at", { withTimezone: true }).notNull().defaultNow(),
+  modelVersion: text("model_version").notNull().default("rerun-pressure-v1"),
+});
