@@ -92,8 +92,8 @@ export function imageFromData(data: CanonicalData) {
       ? (data.images as CanonicalData)
       : null;
   if (!images) return null;
-  for (const key of ["nameicon", "namepic", "image", "icon"]) {
-    if (typeof images[key] === "string") return images[key] as string;
+  for (const key of ["mihoyo_icon", "hoyowiki_icon", "nameicon", "namepic", "image", "icon"]) {
+    if (typeof images[key] === "string" && (images[key] as string).startsWith("http")) return images[key] as string;
   }
   return null;
 }
