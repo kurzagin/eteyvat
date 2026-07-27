@@ -94,12 +94,21 @@ export default function AdminDashboard() {
     : entities;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6 pt-4 pb-12 w-full max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Asset Manager</h1>
-          <p className="text-gray-400">Search and replace images for database entities.</p>
+          <h1 className="h1-title text-[var(--accent)]">Asset Manager</h1>
+          <p className="text-[var(--text-muted)] mt-1">Search and replace images for database entities.</p>
         </div>
+        <button
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST" });
+            window.location.href = "/admin/login";
+          }}
+          className="text-sm bg-[var(--surface-raised)] border border-[var(--border)] hover:bg-[var(--surface-sunken)] text-[var(--text-light)] py-2 px-4 rounded transition-colors"
+        >
+          Logout
+        </button>
       </div>
 
       <div className="flex gap-4">
@@ -108,14 +117,14 @@ export default function AdminDashboard() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search entities (e.g. Wayob)..."
-          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-teal-500 outline-none"
+          className="flex-1 bg-[var(--surface-sunken)] border border-[var(--border)] rounded px-4 py-2 text-[var(--text-light)] focus:border-[var(--accent)] outline-none transition-colors"
         />
         <button
           onClick={() => setMissingFilter(!missingFilter)}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-4 py-2 rounded font-medium transition-colors border ${
             missingFilter 
-              ? 'bg-amber-600 text-white' 
-              : 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700'
+              ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--surface)]' 
+              : 'bg-[var(--surface-raised)] border-[var(--border)] text-[var(--text-muted)] hover:bg-[var(--surface-sunken)]'
           }`}
         >
           {missingFilter ? "Show All" : "Show Missing Only"}
@@ -137,11 +146,11 @@ export default function AdminDashboard() {
           {displayedEntities.map((entity) => {
             const isBroken = !entity.image || brokenImages[entity.id];
             return (
-              <div key={entity.id} className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden flex flex-col group relative">
-                <div className="aspect-square bg-gray-900 flex items-center justify-center p-4 relative">
+              <div key={entity.id} className="bg-[var(--surface-sunken)] border border-[var(--border)] rounded-xl overflow-hidden flex flex-col group relative">
+                <div className="aspect-square bg-[var(--surface)] flex items-center justify-center p-4 relative">
                   {isBroken ? (
-                    <div className="w-16 h-16 rounded-lg bg-gray-800 flex items-center justify-center border border-gray-700 shadow-inner">
-                      <span className="text-xl font-bold text-teal-500/50">
+                    <div className="w-16 h-16 rounded-lg bg-[var(--surface-raised)] flex items-center justify-center border border-[var(--border)] shadow-inner">
+                      <span className="text-xl font-bold text-[var(--accent)] opacity-50">
                         {entity.name.substring(0, 2).toUpperCase()}
                       </span>
                     </div>
@@ -163,17 +172,17 @@ export default function AdminDashboard() {
                 
                 <div className="p-3 flex-1 flex flex-col justify-between">
                   <div>
-                    <div className="text-xs font-bold text-teal-400 mb-1 uppercase tracking-wider">
+                    <div className="text-xs font-bold text-[var(--accent)] mb-1 uppercase tracking-wider">
                       {entity.kind}
                     </div>
-                    <div className="text-sm text-gray-200 line-clamp-2" title={entity.name}>
+                    <div className="text-sm text-[var(--text-light)] line-clamp-2" title={entity.name}>
                       {entity.name}
                     </div>
                   </div>
                   <button
                     onClick={() => handleUploadClick(entity.id)}
                     disabled={uploadingId === entity.id}
-                    className="mt-3 w-full bg-gray-700 hover:bg-teal-600 text-white text-xs py-1.5 rounded transition-colors disabled:opacity-50"
+                    className="mt-3 w-full bg-[var(--surface-raised)] hover:bg-[var(--accent)] hover:text-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] text-[var(--text-muted)] text-xs py-1.5 rounded transition-colors disabled:opacity-50"
                   >
                     {uploadingId === entity.id ? "Uploading..." : "Upload Image"}
                   </button>
