@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { KnowledgeStatus } from "./_components/knowledge-status";
 
 type IconName =
   | "home"
@@ -35,13 +36,13 @@ function Icon({ name, size = 19 }: { name: IconName; size?: number }) {
 }
 
 const navigation: { label: string; icon: IconName; href: string }[] = [
-  { label: "Home", icon: "home", href: "#home" },
-  { label: "Characters", icon: "users", href: "#characters" },
-  { label: "Weapons", icon: "sword", href: "#banners" },
-  { label: "Artifacts", icon: "artifact", href: "#rotation" },
-  { label: "Enemies", icon: "enemy", href: "#rotation" },
-  { label: "Quests", icon: "quest", href: "#home" },
-  { label: "Regions", icon: "map", href: "#home" },
+  { label: "Home", icon: "home", href: "/" },
+  { label: "Characters", icon: "users", href: "/database/characters/" },
+  { label: "Weapons", icon: "sword", href: "/database/weapons/" },
+  { label: "Artifacts", icon: "artifact", href: "/database/artifacts/" },
+  { label: "Enemies", icon: "enemy", href: "/database/enemies/" },
+  { label: "Knowledge", icon: "quest", href: "/knowledge/" },
+  { label: "Explore", icon: "map", href: "/explore/" },
 ];
 
 const rotations = [
@@ -69,10 +70,7 @@ export default function Home() {
           <strong>E-Teyvat</strong>
           <span>Genshin Database</span>
         </Link>
-        <div className="topbar-status">
-          <span className="data-live"><i />Data updated</span>
-          <span className="version-badge">v5.8 · Phase II</span>
-        </div>
+        <KnowledgeStatus />
       </header>
 
       <aside className="sidebar">
@@ -97,11 +95,11 @@ export default function Home() {
           <section className="rotation-section" id="rotation" aria-labelledby="rotation-title">
             <div className="section-header">
               <div><span className="section-icon"><Icon name="calendar" /></span><div><h2 id="rotation-title">Today&apos;s Rotation</h2><p>Sunday · All material domains are open</p></div></div>
-              <Link href="#rotation">All domains <Icon name="chevron" size={14} /></Link>
+              <Link href="/database/domains/">All domains <Icon name="chevron" size={14} /></Link>
             </div>
             <div className="rotation-grid">
               {rotations.map((item) => (
-                <Link className={`rotation-card ${item.color}`} href="#rotation" key={item.type}>
+                <Link className={`rotation-card ${item.color}`} href="/database/domains/" key={item.type}>
                   <span className="rotation-icon"><Icon name={item.icon} /></span>
                   <div><span>{item.type}</span><strong>{item.title}</strong><small>{item.note}</small></div>
                   <div className="drop-stack">{item.drops.map((drop) => <i key={drop}>{drop}</i>)}</div>
@@ -112,30 +110,30 @@ export default function Home() {
           </section>
 
           <section className="banner-grid" id="banners" aria-label="Current banners">
-            <Link className="banner-image-card" href="#characters">
+            <Link className="banner-image-card" href="/knowledge/">
               <div className="banner-placeholder character-placeholder">
                 <span className="placeholder-icon"><Icon name="users" size={24} /></span>
                 <span className="placeholder-copy">
-                  <strong>Character banner image</strong>
-                  <small>Official artwork placeholder</small>
+                  <strong>Ask across character data</strong>
+                  <small>Exact facts with graph evidence</small>
                 </span>
               </div>
               <div className="banner-caption">
-                <div><span>Character Event Wish</span><strong>Current character banner</strong></div>
+                <div><span>AI retrieval</span><strong>Trace entities and relations</strong></div>
                 <Icon name="chevron" size={16} />
               </div>
             </Link>
 
-            <Link className="banner-image-card" href="#banners">
+            <Link className="banner-image-card" href="/explore/">
               <div className="banner-placeholder weapon-placeholder">
                 <span className="placeholder-icon"><Icon name="sword" size={24} /></span>
                 <span className="placeholder-copy">
-                  <strong>Weapon banner image</strong>
-                  <small>Official artwork placeholder</small>
+                  <strong>Search every entity</strong>
+                  <small>Characters, weapons, materials, domains</small>
                 </span>
               </div>
               <div className="banner-caption">
-                <div><span>Weapon Event Wish</span><strong>Current weapon banner</strong></div>
+                <div><span>Knowledge explorer</span><strong>Browse the normalized archive</strong></div>
                 <Icon name="chevron" size={16} />
               </div>
             </Link>
@@ -147,7 +145,7 @@ export default function Home() {
               <h2 id="characters-title">Find builds for every character</h2>
               <p>Talents, materials, weapons, artifacts, teams, and rotations in one place.</p>
               <div className="database-filters"><span>102 characters</span><span>7 elements</span><span>All regions</span></div>
-              <Link className="primary-action" href="#characters">Browse characters <Icon name="chevron" size={15} /></Link>
+              <Link className="primary-action" href="/database/characters/">Browse characters <Icon name="chevron" size={15} /></Link>
             </div>
             <div className="database-portraits">
               {characterPreview.map((character, index) => (

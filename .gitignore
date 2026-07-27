@@ -13,5 +13,6 @@
 
 # logs and system files
 *.log
+*.tsbuildinfo
 .DS_Store
 Thumbs.db
