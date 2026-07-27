@@ -125,6 +125,15 @@ export function imageFromData(data: CanonicalData) {
   return null;
 }
 
+export function resolveImageUrl(customImageUrl: string | null, canonicalData: CanonicalData | null) {
+  if (customImageUrl) {
+    if (customImageUrl.startsWith("http")) return customImageUrl;
+    const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL || "https://cdn.eteyvat.krzgn.xyz";
+    return `${cdnUrl}/${customImageUrl}`;
+  }
+  return canonicalData ? imageFromData(canonicalData) : null;
+}
+
 export async function activeRevision(database: ReturnType<typeof getDatabase>) {
   const [run] = await database
     .select()

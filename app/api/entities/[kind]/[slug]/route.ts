@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDatabase } from "../../../../../db/client";
 import { entities, relations } from "../../../../../db/schema";
-import { DEMO_ENTITIES, errorResponse, imageFromData } from "../../../utils";
+import { DEMO_ENTITIES, errorResponse, resolveImageUrl } from "../../../utils";
 
 export async function GET(
   request: NextRequest,
@@ -40,7 +40,7 @@ export async function GET(
   const item = {
     ...entityData,
     canonicalData,
-    image: customImageUrl || imageFromData(canonicalData as any),
+    image: resolveImageUrl(customImageUrl, canonicalData as any),
   };
 
   const edges = await database

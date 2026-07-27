@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { and, eq, ilike } from "drizzle-orm";
 import { getDatabase } from "../../../db/client";
 import { entities } from "../../../db/schema";
-import { boundedLimit, DEMO_ENTITIES, imageFromData } from "../utils";
+import { boundedLimit, DEMO_ENTITIES, resolveImageUrl } from "../utils";
 
 export async function GET(request: NextRequest) {
   const databaseUrl = process.env.DATABASE_URL;
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     {
       items: rows.map(({ canonicalData, customImageUrl, ...entity }) => ({
         ...entity,
-        image: customImageUrl || imageFromData(canonicalData as any),
+        image: resolveImageUrl(customImageUrl, canonicalData as any),
       })),
       preview: false,
       total: rows.length,

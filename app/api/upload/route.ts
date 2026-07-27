@@ -46,8 +46,7 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    const url = `https://cdn.eteyvat.krzgn.xyz/${key}`;
-    return NextResponse.json({ url });
+    return NextResponse.json({ url: key });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
