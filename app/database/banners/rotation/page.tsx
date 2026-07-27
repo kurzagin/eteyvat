@@ -87,7 +87,20 @@ export default async function BannerRotationPage() {
                   </div>
                   <div className="phase-four-stars">
                     <span className="roster-label">4-star constellation</span>
-                    <div>{fourStars.map((character) => <Link href={`/characters/${character.slug}/banner-history`} key={character.slug}>{character.name}<ArrowRight size={11} /></Link>)}</div>
+                    <div>
+                      {fourStars.map((character) => (
+                        <Link href={`/characters/${character.slug}/banner-history`} key={character.slug}>
+                          <CharacterPortrait
+                            slug={character.slug}
+                            name={character.name}
+                            imageUrl={character.imageUrl}
+                            sizes="38px"
+                          />
+                          <span>{character.name}</span>
+                          <ArrowRight size={10} />
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
