@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const characterImages: Record<string, string> = {
+const localCharacterImages: Record<string, string> = {
   alhaitham: "/characters/alhaitham.png",
   arlecchino: "/characters/arlecchino.png",
   furina: "/characters/furina.png",
@@ -11,15 +11,17 @@ const characterImages: Record<string, string> = {
 export function CharacterPortrait({
   slug,
   name,
+  imageUrl,
   className = "",
   sizes = "180px",
 }: {
   slug: string;
   name: string;
+  imageUrl?: string | null;
   className?: string;
   sizes?: string;
 }) {
-  const src = characterImages[slug];
+  const src = imageUrl || localCharacterImages[slug];
 
   return (
     <span className={`banner-character-art ${className}`}>

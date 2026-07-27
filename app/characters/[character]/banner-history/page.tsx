@@ -41,7 +41,7 @@ export default async function CharacterBannerHistoryPage({
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <div className="flex items-center space-x-4">
-        <Link href="/banners/rerun-pressure" className="text-blue-400 hover:underline">
+        <Link href="/database/banners/rerun-pressure" className="text-blue-400 hover:underline">
           &larr; Back to Rerun Pressure
         </Link>
       </div>

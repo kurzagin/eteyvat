@@ -42,6 +42,7 @@ export const navigation: { label: string; icon: IconName; href: string }[] = [
   { label: "Characters", icon: "users", href: "/database/characters/" },
   { label: "Weapons", icon: "sword", href: "/database/weapons/" },
   { label: "Artifacts", icon: "artifact", href: "/database/artifacts/" },
+  { label: "Banners", icon: "calendar", href: "/database/banners/" },
   { label: "Enemies", icon: "enemy", href: "/database/enemies/" },
   { label: "Knowledge", icon: "quest", href: "/knowledge/" },
   { label: "Explore", icon: "map", href: "/explore/" },
@@ -66,13 +67,15 @@ export function Topbar() {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === "/" ? pathname === href : pathname.startsWith(href.replace(/\/$/, ""));
 
   return (
     <aside className="sidebar">
       <nav aria-label="Database navigation">
         {navigation.map((item) => (
           <Link 
-            className={`rail-link ${pathname === item.href ? "active" : ""}`} 
+            className={`rail-link ${isActive(item.href) ? "active" : ""}`}
             href={item.href} 
             key={item.label} 
             aria-label={item.label}
@@ -89,12 +92,14 @@ export function Sidebar() {
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === "/" ? pathname === href : pathname.startsWith(href.replace(/\/$/, ""));
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
       {navigation.slice(0, 4).map((item) => (
         <Link 
-          className={pathname === item.href ? "active" : ""} 
+          className={isActive(item.href) ? "active" : ""}
           href={item.href} 
           key={item.label}
         >
