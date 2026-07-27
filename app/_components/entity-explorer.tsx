@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { Flame, Droplets, Wind, Zap, Snowflake, Leaf, Mountain, Star, HelpCircle } from "lucide-react";
 
 type EntityPreview = {
   id: number;
@@ -172,31 +173,74 @@ export function EntityExplorer({
         </div>
       ) : null}
 
-      <div className="entity-grid mt-6">
+      <div className="entity-grid mt-6 gap-6">
         {result?.items.map((entity) => {
-          let rarityColor = "var(--border)";
-          if (entity.rarity === 5) rarityColor = "#d4af37";
-          if (entity.rarity === 4) rarityColor = "#9b59b6";
-          if (entity.rarity === 3) rarityColor = "#3498db";
-          
+          let rarityColor = "rgba(255, 255, 255, 0.1)"; // Default border
+          let rarityGlow = "transparent";
+          if (entity.rarity === 5) {
+            rarityColor = "#d4af37";
+            rarityGlow = "rgba(212, 175, 55, 0.4)";
+          } else if (entity.rarity === 4) {
+            rarityColor = "#a366ff";
+            rarityGlow = "rgba(163, 102, 255, 0.4)";
+          } else if (entity.rarity === 3) {
+            rarityColor = "#4da6ff";
+            rarityGlow = "rgba(77, 166, 255, 0.4)";
+          }
+
+          const getElementIcon = (element: string | null) => {
+            if (!element) return null;
+            const el = element.toLowerCase();
+            const props = { size: 16, strokeWidth: 2.5, className: "text-white drop-shadow-md" };
+            
+            if (el.includes("pyro")) return <Flame {...props} color="#ff5a5a" />;
+            if (el.includes("hydro")) return <Droplets {...props} color="#45b6ff" />;
+            if (el.includes("anemo")) return <Wind {...props} color="#5ceda1" />;
+            if (el.includes("electro")) return <Zap {...props} color="#c65df5" />;
+            if (el.includes("cryo")) return <Snowflake {...props} color="#99ffff" />;
+            if (el.includes("dendro")) return <Leaf {...props} color="#85cc33" />;
+            if (el.includes("geo")) return <Mountain {...props} color="#ffb13b" />;
+            return <HelpCircle {...props} />;
+          };
+
+          const ElementIcon = getElementIcon(entity.element);
+
           return (
             <article 
-              className="bg-[var(--surface-sunken)] border border-[var(--border)] rounded overflow-hidden flex flex-col relative aspect-[3/4] group shadow-md transition-transform hover:-translate-y-1 hover:shadow-xl" 
+              className="group relative flex flex-col rounded-xl overflow-hidden aspect-[3/4] bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2" 
               key={`${entity.kind}:${entity.id}`}
-              style={{ borderBottom: `4px solid ${rarityColor}` }}
+              style={{ 
+                boxShadow: `0 4px 20px -2px rgba(0,0,0,0.5), 0 0 15px ${rarityGlow}`,
+                borderBottom: `4px solid ${rarityColor}` 
+              }}
             >
-              <div className="absolute inset-0 z-0 bg-[var(--surface)]">
+              <div className="absolute inset-0 z-0 bg-[var(--surface)] transition-transform duration-500 ease-out group-hover:scale-110">
                 <EntityImage entity={entity} />
               </div>
               
-              {entity.element && (
-                <div className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-sm" title={entity.element}>
-                  <span className="text-[10px] font-bold text-white uppercase">{entity.element.substring(0,2)}</span>
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+
+              {/* Rarity Stars (if present) */}
+              {entity.rarity && (
+                <div className="absolute top-3 left-3 z-20 flex gap-0.5 drop-shadow-md">
+                  {Array.from({ length: Math.min(entity.rarity, 5) }).map((_, i) => (
+                    <Star key={i} size={12} fill="#ffc83d" color="#ffc83d" />
+                  ))}
                 </div>
               )}
               
-              <div className="relative z-10 mt-auto bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 pb-3 px-3">
-                <h2 className="text-white font-bold text-center text-sm truncate drop-shadow-md">{entity.name}</h2>
+              {/* Element Badge */}
+              {ElementIcon && (
+                <div className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg group-hover:bg-white/20 transition-colors" title={entity.element!}>
+                  {ElementIcon}
+                </div>
+              )}
+              
+              <div className="relative z-20 mt-auto p-4 flex flex-col justify-end h-full">
+                <h2 className="text-white font-extrabold text-center text-base sm:text-lg leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide">
+                  {entity.name}
+                </h2>
+                <div className="w-8 h-0.5 bg-white/30 mx-auto mt-2 rounded-full group-hover:w-12 transition-all duration-300" style={{ backgroundColor: rarityColor }} />
               </div>
             </article>
           );
