@@ -208,7 +208,7 @@ export function EntityExplorer({
           if (entity.kind === "characters") {
             return (
               <article 
-                className="group relative flex flex-col rounded-xl overflow-hidden aspect-[3/4] bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2 col-span-1" 
+                className="group relative flex flex-col rounded-xl overflow-hidden aspect-square bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2 col-span-1" 
                 key={`${entity.kind}:${entity.id}`}
                 style={{ 
                   boxShadow: `0 4px 20px -2px rgba(0,0,0,0.5), 0 0 15px ${rarityGlow}`,
