@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
-import { getDatabase } from "../../../../db/client";
-import { entities } from "../../../../db/schema";
+import { getDatabase } from "../../../../../db/client";
+import { entities } from "../../../../../db/schema";
 
 export async function PATCH(
   request: NextRequest,
