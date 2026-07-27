@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const filename = searchParams.get("filename");
+  const kind = searchParams.get("kind") || "misc";
+  const slug = searchParams.get("slug") || "unknown";
 
   if (!filename) {
     return NextResponse.json({ error: "Filename is required" }, { status: 400 });
@@ -27,20 +29,23 @@ export async function POST(request: NextRequest) {
     const buffer = await request.arrayBuffer();
     
     // Guess basic content type based on extension
+    const extension = filename.split('.').pop()?.toLowerCase() || 'png';
     let contentType = "image/png";
-    if (filename.toLowerCase().endsWith(".webp")) contentType = "image/webp";
-    if (filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) contentType = "image/jpeg";
+    if (extension === "webp") contentType = "image/webp";
+    if (extension === "jpg" || extension === "jpeg") contentType = "image/jpeg";
+
+    const key = `${kind}/${slug}.${extension}`;
 
     await s3Client.send(
       new PutObjectCommand({
         Bucket: "eteyvat",
-        Key: filename,
+        Key: key,
         Body: Buffer.from(buffer),
         ContentType: contentType,
       })
     );
 
-    const url = `https://cdn.eteyvat.krzgn.xyz/${filename}`;
+    const url = `https://cdn.eteyvat.krzgn.xyz/${key}`;
     return NextResponse.json({ url });
   } catch (err) {
     console.error(err);

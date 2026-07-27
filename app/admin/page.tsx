@@ -53,9 +53,12 @@ export default function AdminDashboard() {
     const file = e.target.files?.[0];
     if (!file || uploadingId === null) return;
 
+    const entity = entities.find(ent => ent.id === uploadingId);
+    if (!entity) return;
+
     try {
-      // 1. Upload to Vercel Blob
-      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+      // 1. Upload to Cloudflare R2
+      const res = await fetch(`/api/upload?kind=${entity.kind}&slug=${entity.slug}&filename=${encodeURIComponent(file.name)}`, {
         method: "POST",
         body: file,
       });
