@@ -1,138 +1,135 @@
 import { getDatabase } from "@/db/client";
 import { bannerPhases, bannerPhaseCharacters, entities, bannerCharacterStatistics } from "@/db/schema";
-import { eq, desc, isNotNull, or } from "drizzle-orm";
+import { eq, isNotNull, or } from "drizzle-orm";
+import { Activity, ArrowRight, CalendarRange, ChartNoAxesCombined, Clock3, Orbit, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { CharacterPortrait } from "./banner-visuals";
 import { WaitDistributionChart } from "./client-charts";
 
 export const metadata = {
-  title: "Banners Overview",
-  description: "Current Genshin Impact banners and rerun statistics.",
+  title: "Wish Observatory | E-Teyvat",
+  description: "Live Genshin Impact banner rotation and rerun intelligence.",
 };
 
 export default async function BannersPage() {
   const db = getDatabase();
+  const [currentPhase, stats] = await Promise.all([
+    db.query.bannerPhases.findFirst({
+      where: or(eq(bannerPhases.status, "active"), eq(bannerPhases.status, "upcoming")),
+      orderBy: (phases, { desc: orderDesc }) => [orderDesc(phases.sequenceIndex)],
+    }),
+    db.select({ currentWait: bannerCharacterStatistics.currentWait })
+      .from(bannerCharacterStatistics)
+      .innerJoin(entities, eq(bannerCharacterStatistics.characterId, entities.id))
+      .where(isNotNull(bannerCharacterStatistics.pressureScore)),
+  ]);
 
-  const currentPhase = await db.query.bannerPhases.findFirst({
-    where: or(eq(bannerPhases.status, "active"), eq(bannerPhases.status, "upcoming")),
-    orderBy: (phases, { desc }) => [desc(phases.sequenceIndex)],
-  });
-
-  let featuredChars: any[] = [];
-  if (currentPhase) {
-    featuredChars = await db
-      .select({
+  const featuredChars = currentPhase
+    ? await db.select({
         slug: entities.slug,
         name: entities.name,
         rarity: bannerPhaseCharacters.rarity,
-
       })
       .from(bannerPhaseCharacters)
       .innerJoin(entities, eq(bannerPhaseCharacters.characterId, entities.id))
-      .where(eq(bannerPhaseCharacters.phaseId, currentPhase.id));
-  }
-
-  // Get data for Wait Distribution Chart (4-stars)
-  const stats = await db
-    .select({
-      currentWait: bannerCharacterStatistics.currentWait,
-    })
-    .from(bannerCharacterStatistics)
-    .innerJoin(entities, eq(bannerCharacterStatistics.characterId, entities.id))
-    .where(isNotNull(bannerCharacterStatistics.pressureScore));
+      .where(eq(bannerPhaseCharacters.phaseId, currentPhase.id))
+    : [];
 
   const waitCounts = new Map<number, number>();
-  stats.forEach(s => {
-    const wait = s.currentWait;
-    waitCounts.set(wait, (waitCounts.get(wait) || 0) + 1);
-  });
-  const distributionData = Array.from(waitCounts.entries())
-    .map(([wait, count]) => ({ wait, count }))
-    .sort((a, b) => a.wait - b.wait);
+  for (const stat of stats) waitCounts.set(stat.currentWait, (waitCounts.get(stat.currentWait) ?? 0) + 1);
+  const distributionData = Array.from(waitCounts, ([wait, count]) => ({ wait, count })).sort((a, b) => a.wait - b.wait);
+  const fiveStars = featuredChars.filter((character) => character.rarity === 5);
+  const fourStars = featuredChars.filter((character) => character.rarity === 4);
+  const maxWait = stats.length ? Math.max(...stats.map((stat) => stat.currentWait)) : 0;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-12">
-      <header className="space-y-4">
-        <h1 className="text-4xl font-bold text-white">Event Wish Banners</h1>
-        <p className="text-gray-400">
-          Overview of current banners, rotation history, and statistical rerun estimates.
-        </p>
-      </header>
-
-      {/* Navigation Cards */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Link href="/banners/rotation" className="group block">
-          <div className="bg-[var(--surface-sunken)] border border-white/10 hover:border-blue-500/50 rounded-xl p-6 transition-all h-full">
-            <h2 className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">Rotation Timeline &rarr;</h2>
-            <p className="text-gray-400 mt-2">View the complete chronological history of character banner phases.</p>
+    <div className="banner-observatory">
+      <section className="banner-hero">
+        <div className="banner-hero-copy">
+          <span className="banner-kicker"><Orbit size={13} /> Wish intelligence / live archive</span>
+          <h1>Banner<br /><em>Observatory</em></h1>
+          <p>Track the current signal, inspect every rotation, and read the statistical pressure building across Teyvat&apos;s wish history.</p>
+          <div className="banner-hero-actions">
+            <Link href="/banners/rotation">Explore timeline <ArrowRight size={14} /></Link>
+            <Link href="/banners/rerun-pressure">View pressure index</Link>
           </div>
-        </Link>
-        <Link href="/banners/rerun-pressure" className="group block">
-          <div className="bg-[var(--surface-sunken)] border border-white/10 hover:border-orange-500/50 rounded-xl p-6 transition-all h-full">
-            <h2 className="text-2xl font-bold text-white group-hover:text-orange-400 transition-colors">Rerun Pressure &rarr;</h2>
-            <p className="text-gray-400 mt-2">See which characters are statistically most "due" for a rerun based on their historical patterns.</p>
-          </div>
-        </Link>
+        </div>
+        <div className="banner-orbit-visual" aria-hidden="true">
+          <span className="orbit-ring ring-one" />
+          <span className="orbit-ring ring-two" />
+          <span className="orbit-core"><Sparkles size={28} /></span>
+          <span className="orbit-label orbit-label-one">PHASE {currentPhase?.sequenceIndex ?? "—"}</span>
+          <span className="orbit-label orbit-label-two">{stats.length} SIGNALS</span>
+          <span className="orbit-label orbit-label-three">SYNCED</span>
+        </div>
+        <div className="banner-telemetry">
+          <span><i /> Archive online</span>
+          <strong>{currentPhase ? `V${currentPhase.version} · P${currentPhase.phaseNumber}` : "NO ACTIVE PHASE"}</strong>
+        </div>
       </section>
 
-      {/* Current Banner Section */}
-      <section className="space-y-6">
-        <div className="flex justify-between items-end">
-          <h2 className="text-3xl font-bold text-white">Current Banners</h2>
-          {currentPhase && (
-            <div className="text-gray-400 text-sm">
-              Version {currentPhase.version} Phase {currentPhase.phaseNumber} ({currentPhase.status})
-            </div>
-          )}
-        </div>
-        
+      <section className="banner-metric-grid" aria-label="Banner metrics">
+        <article><CalendarRange size={18} /><div><span>Current sequence</span><strong>{currentPhase?.sequenceIndex ?? "—"}</strong></div><small>Global phase index</small></article>
+        <article><Activity size={18} /><div><span>Tracked signals</span><strong>{stats.length}</strong></div><small>Pressure-ready units</small></article>
+        <article><Clock3 size={18} /><div><span>Longest wait</span><strong>{maxWait}</strong></div><small>Completed phases</small></article>
+      </section>
+
+      <section className="current-wish-panel">
+        <header className="banner-section-heading">
+          <div><span>01 / Live signal</span><h2>Current event wishes</h2></div>
+          <p>{currentPhase ? `${currentPhase.status} · Version ${currentPhase.version} / Phase ${currentPhase.phaseNumber}` : "Awaiting the next archive sync"}</p>
+        </header>
         {currentPhase ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-black/20 border border-white/5 rounded-xl p-6">
-              <h3 className="text-[#facc15] font-semibold uppercase tracking-wider mb-4">Character Event Wishes</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {featuredChars.filter(c => c.rarity === 5).map(char => (
-                  <Link href={`/characters/${char.slug}`} key={char.slug}>
-                    <div className="aspect-[3/4] relative rounded-lg border border-[#facc15]/30 bg-gradient-to-t from-[#facc15]/20 to-transparent flex items-end p-4 hover:from-[#facc15]/40 transition-colors">
-                      <span className="text-white font-bold drop-shadow-md relative z-10">{char.name}</span>
-                    </div>
+          <div className="featured-wish-grid">
+            <div className="five-star-stage">
+              <div className="stage-grid" />
+              <span className="rarity-mark">✦ 5-star featured transmission</span>
+              <div className="featured-portraits">
+                {fiveStars.map((character, index) => (
+                  <Link className={`featured-portrait portrait-${index + 1}`} href={`/characters/${character.slug}/banner-history`} key={character.slug}>
+                    <CharacterPortrait slug={character.slug} name={character.name} sizes="(max-width: 760px) 45vw, 260px" />
+                    <span><small>Event wish</small><strong>{character.name}</strong></span>
+                  </Link>
+                ))}
+                {!fiveStars.length && <p className="banner-empty">No featured five-star records in this phase.</p>}
+              </div>
+            </div>
+            <aside className="four-star-roster">
+              <span className="roster-label">Support frequency</span>
+              <h3>Featured 4-stars</h3>
+              <p>Linked directly to each unit&apos;s appearance history.</p>
+              <div>
+                {fourStars.map((character, index) => (
+                  <Link href={`/characters/${character.slug}/banner-history`} key={character.slug}>
+                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{character.name}</strong><ArrowRight size={13} />
                   </Link>
                 ))}
               </div>
-              <div className="mt-6">
-                <h4 className="text-[#c084fc] font-semibold text-sm uppercase tracking-wider mb-3">Featured 4-Stars</h4>
-                <div className="flex flex-wrap gap-3">
-                  {featuredChars.filter(c => c.rarity === 4).map(char => (
-                    <Link key={char.slug} href={`/characters/${char.slug}`} className="bg-[#c084fc]/10 text-gray-200 border border-[#c084fc]/20 rounded-full px-4 py-1.5 text-sm hover:bg-[#c084fc]/20 transition-colors">
-                      {char.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-black/20 border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center">
-              <h3 className="text-[#facc15] font-semibold uppercase tracking-wider mb-4">Epitome Invocation (Weapons)</h3>
-              <div className="text-gray-500 p-8 border border-dashed border-gray-600 rounded-lg">
-                <p>Weapon banner tracking is currently not available in the dataset.</p>
-                <p className="text-sm mt-2">Signature weapons usually run alongside their respective 5-star characters.</p>
-              </div>
-            </div>
+            </aside>
           </div>
-        ) : (
-          <div className="text-gray-500 p-8 border border-white/10 rounded-xl bg-[var(--surface-sunken)]">
-            No active banners found in the database.
-          </div>
-        )}
+        ) : <div className="banner-empty-panel">No active or upcoming banner is present in the archive.</div>}
       </section>
 
-      {/* Statistics Section */}
-      <section className="space-y-6">
-        <h2 className="text-3xl font-bold text-white">4-Star Rerun Wait Distribution</h2>
-        <div className="bg-[var(--surface-sunken)] border border-white/10 rounded-xl p-6 h-[400px]">
-          <WaitDistributionChart data={distributionData} />
+      <section className="banner-analysis-grid">
+        <article className="banner-chart-card">
+          <header><div><span>02 / Distribution</span><h2>Wait-state spectrum</h2></div><ChartNoAxesCombined size={20} /></header>
+          <p>How many tracked four-stars occupy each wait interval.</p>
+          <div className="banner-chart-wrap"><WaitDistributionChart data={distributionData} /></div>
+          <div className="chart-axis-note"><span>Recent rotation</span><span>Phases waiting →</span><span>Deep archive</span></div>
+        </article>
+        <div className="banner-route-stack">
+          <Link href="/banners/rotation">
+            <span className="route-index">A / 01</span><CalendarRange size={22} />
+            <div><small>Chronological archive</small><h3>Rotation timeline</h3><p>Traverse the latest 20 phase records and their featured lineups.</p></div>
+            <ArrowRight size={17} />
+          </Link>
+          <Link href="/banners/rerun-pressure">
+            <span className="route-index">A / 02</span><Activity size={22} />
+            <div><small>Predictive telemetry</small><h3>Rerun pressure</h3><p>Compare wait intervals, model confidence, and historical urgency.</p></div>
+            <ArrowRight size={17} />
+          </Link>
         </div>
       </section>
-
     </div>
   );
 }
