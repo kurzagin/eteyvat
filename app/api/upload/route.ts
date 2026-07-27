@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import sharp from "sharp";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -26,22 +27,22 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const buffer = await request.arrayBuffer();
+    const arrayBuffer = await request.arrayBuffer();
+    const originalBuffer = Buffer.from(arrayBuffer);
     
-    // Guess basic content type based on extension
-    const extension = filename.split('.').pop()?.toLowerCase() || 'png';
-    let contentType = "image/png";
-    if (extension === "webp") contentType = "image/webp";
-    if (extension === "jpg" || extension === "jpeg") contentType = "image/jpeg";
+    // Compress and convert to AVIF
+    const avifBuffer = await sharp(originalBuffer)
+      .avif({ quality: 80, effort: 4 })
+      .toBuffer();
 
-    const key = `${kind}/${slug}.${extension}`;
+    const key = `${kind}/${slug}.avif`;
 
     await s3Client.send(
       new PutObjectCommand({
         Bucket: "eteyvat",
         Key: key,
-        Body: Buffer.from(buffer),
-        ContentType: contentType,
+        Body: avifBuffer,
+        ContentType: "image/avif",
       })
     );
 
