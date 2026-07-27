@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 type Entity = {
   id: number;
   kind: string;
+  slug: string;
   name: string;
   image: string | null;
 };
