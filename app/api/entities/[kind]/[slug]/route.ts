@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDatabase } from "../../../../../db/client";
 import { entities, relations } from "../../../../../db/schema";
-import { DEMO_ENTITIES, errorResponse } from "../../../utils";
+import { DEMO_ENTITIES, errorResponse, imageFromData } from "../../../utils";
 
 export async function GET(
   request: NextRequest,
