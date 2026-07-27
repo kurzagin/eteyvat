@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Flame, Droplets, Wind, Zap, Snowflake, Leaf, Mountain, Star, HelpCircle } from "lucide-react";
+import { Flame, Droplets, Wind, Zap, Snowflake, Leaf, Mountain, HelpCircle } from "lucide-react";
 
 type EntityPreview = {
   id: number;
@@ -218,20 +218,12 @@ export function EntityExplorer({
                 <EntityImage entity={entity} />
               </div>
               
-              <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-              {/* Rarity Stars (if present) */}
-              {entity.rarity && (
-                <div className="absolute top-3 left-3 z-20 flex gap-0.5 drop-shadow-md">
-                  {Array.from({ length: Math.min(entity.rarity, 5) }).map((_, i) => (
-                    <Star key={i} size={12} fill="#ffc83d" color="#ffc83d" />
-                  ))}
-                </div>
-              )}
+              {/* Fade in shadow from bottom to top */}
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-black/40 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-300" />
               
               {/* Element Badge */}
               {ElementIcon && (
-                <div className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg group-hover:bg-white/20 transition-colors" title={entity.element!}>
+                <div className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg group-hover:bg-black/60 transition-colors" title={entity.element!}>
                   {ElementIcon}
                 </div>
               )}
