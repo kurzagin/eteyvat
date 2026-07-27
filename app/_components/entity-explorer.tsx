@@ -278,7 +278,7 @@ export function EntityExplorer({
                 )}
 
                 {/* Top-Left Category Pill */}
-                <div className="absolute top-2 left-2 z-20 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/5 text-[9px] sm:text-[10px] text-white/80 font-bold uppercase tracking-widest shadow-sm">
+                <div className="absolute top-2 left-2 z-20 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/5 text-xs text-white/80 font-bold uppercase tracking-widest shadow-sm">
                   {kindLabels[entity.kind] ?? entity.kind}
                 </div>
               </div>
