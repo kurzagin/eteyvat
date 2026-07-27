@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
       name: entities.name,
       description: entities.description,
       gameVersion: entities.gameVersion,
+      customImageUrl: entities.customImageUrl,
       canonicalData: entities.canonicalData,
       updatedAt: entities.updatedAt,
     })
@@ -44,9 +45,9 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json(
     {
-      items: rows.map(({ canonicalData, ...entity }) => ({
+      items: rows.map(({ canonicalData, customImageUrl, ...entity }) => ({
         ...entity,
-        image: imageFromData(canonicalData as any),
+        image: customImageUrl || imageFromData(canonicalData as any),
       })),
       preview: false,
       total: rows.length,

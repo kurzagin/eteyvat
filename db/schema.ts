@@ -56,6 +56,7 @@ export const entities = pgTable(
     contentHash: varchar("content_hash", { length: 64 }).notNull(),
     gameVersion: text("game_version"),
     sourceUrl: text("source_url"),
+    customImageUrl: text("custom_image_url"),
     isActive: boolean("is_active").notNull().default(true),
     lastSeenSyncId: uuid("last_seen_sync_id").references(() => syncRuns.id, {
       onDelete: "set null",

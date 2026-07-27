@@ -22,7 +22,7 @@ export async function GET(
   }
 
   const database = getDatabase();
-  const [item] = await database
+  const [row] = await database
     .select()
     .from(entities)
     .where(
@@ -34,7 +34,14 @@ export async function GET(
     )
     .limit(1);
 
-  if (!item) return errorResponse("Not found.", 404);
+  if (!row) return errorResponse("Not found.", 404);
+
+  const { canonicalData, customImageUrl, ...entityData } = row;
+  const item = {
+    ...entityData,
+    canonicalData,
+    image: customImageUrl || imageFromData(canonicalData as any),
+  };
 
   const edges = await database
     .select({
