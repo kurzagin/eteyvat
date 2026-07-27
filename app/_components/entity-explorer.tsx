@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Flame, Droplets, Wind, Zap, Snowflake, Leaf, Mountain, HelpCircle } from "lucide-react";
+import { Flame, Droplets, Wind, Zap, Snowflake, Leaf, Mountain, Star, HelpCircle } from "lucide-react";
 
 type EntityPreview = {
   id: number;
@@ -205,9 +205,50 @@ export function EntityExplorer({
 
           const ElementIcon = getElementIcon(entity.element);
 
+          if (entity.kind !== "characters") {
+            return (
+              <article 
+                className="group relative flex flex-col sm:flex-row rounded-xl overflow-hidden bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-1 col-span-1 sm:col-span-2 lg:col-span-3 min-h-[120px]" 
+                key={`${entity.kind}:${entity.id}`}
+                style={{ 
+                  boxShadow: `0 4px 15px -2px rgba(0,0,0,0.3), 0 0 10px ${rarityGlow}`,
+                  borderLeft: `4px solid ${rarityColor}` 
+                }}
+              >
+                <div className="absolute inset-0 z-0 bg-[var(--surface)] opacity-40">
+                  {/* subtle background if needed */}
+                </div>
+
+                {/* Left side: Image (or Right side depending on preference) */}
+                <div className="relative z-10 w-32 h-32 shrink-0 flex items-center justify-center bg-black/20 p-2 overflow-hidden rounded-l-xl">
+                  <div className="w-full h-full transition-transform duration-500 ease-out group-hover:scale-110">
+                    <EntityImage entity={entity} />
+                  </div>
+                </div>
+                
+                {/* Right side: Content */}
+                <div className="relative z-10 flex-1 p-4 flex flex-col justify-center bg-gradient-to-r from-transparent to-black/40">
+                  {entity.rarity && (
+                    <div className="flex gap-0.5 mb-1 opacity-80">
+                      {Array.from({ length: Math.min(entity.rarity, 5) }).map((_, i) => (
+                        <Star key={i} size={10} fill="#ffc83d" color="#ffc83d" />
+                      ))}
+                    </div>
+                  )}
+                  <h2 className="text-white font-extrabold text-base sm:text-xl leading-tight drop-shadow-md tracking-wide max-w-full">
+                    {entity.name}
+                  </h2>
+                  <span className="text-[10px] sm:text-xs text-[var(--text-muted)] uppercase tracking-wider font-bold mt-1">
+                    {kindLabels[entity.kind] ?? entity.kind}
+                  </span>
+                </div>
+              </article>
+            );
+          }
+
           return (
             <article 
-              className="group relative flex flex-col rounded-xl overflow-hidden aspect-[3/4] bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2" 
+              className="group relative flex flex-col rounded-xl overflow-hidden aspect-[3/4] bg-[var(--surface-sunken)] border border-white/5 transition-all duration-300 hover:-translate-y-2 col-span-1" 
               key={`${entity.kind}:${entity.id}`}
               style={{ 
                 boxShadow: `0 4px 20px -2px rgba(0,0,0,0.5), 0 0 15px ${rarityGlow}`,
